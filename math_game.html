@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Challenge!</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .container {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 600px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    text-align: center;
+  }
+  h1 { font-size: 2.2rem; color: #4a00e0; margin-bottom: 10px; }
+  h2 { font-size: 1.5rem; color: #555; margin-bottom: 20px; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* Welcome */
+  .grade-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .grade-btn {
+    padding: 16px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    border: 3px solid #667eea;
+    background: white;
+    color: #667eea;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .grade-btn:hover, .grade-btn:focus-visible { background: #667eea; color: white; transform: scale(1.05); outline: none; }
+
+  /* Topic selection */
+  .topic-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 20px;
+  }
+  .topic-btn {
+    padding: 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    color: white;
+    transition: all 0.2s;
+  }
+  .topic-btn:hover, .topic-btn:focus-visible { transform: scale(1.05); filter: brightness(1.1); outline: none; }
+  .topic-btn:nth-child(1) { background: #ff6b6b; }
+  .topic-btn:nth-child(2) { background: #ffa94d; }
+  .topic-btn:nth-child(3) { background: #51cf66; }
+  .topic-btn:nth-child(4) { background: #339af0; }
+  .topic-btn:nth-child(5) { background: #cc5de8; }
+  .topic-btn:nth-child(6) { background: #20c997; }
+
+  /* Quiz */
+  .progress-bar-bg {
+    width: 100%;
+    height: 14px;
+    background: #e9ecef;
+    border-radius: 7px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #51cf66, #20c997);
+    border-radius: 7px;
+    transition: width 0.4s;
+  }
+  .quiz-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    font-size: 1.1rem;
+    color: #555;
+    font-weight: 600;
+  }
+  .score { color: #4a00e0; }
+  .question-text {
+    font-size: 2rem;
+    color: #333;
+    margin: 30px 0;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #answer-input {
+    font-size: 1.6rem;
+    padding: 14px 20px;
+    border: 3px solid #ddd;
+    border-radius: 12px;
+    width: 200px;
+    max-width: 60%;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  #answer-input:focus { border-color: #667eea; }
+  .submit-btn {
+    display: inline-block;
+    margin-left: 10px;
+    padding: 14px 30px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .submit-btn:hover, .submit-btn:focus-visible { background: #5a6fd6; outline: none; }
+  .answer-row { margin-bottom: 20px; }
+
+  /* Feedback */
+  .feedback {
+    font-size: 1.3rem;
+    font-weight: bold;
+    min-height: 50px;
+    margin-top: 16px;
+    transition: opacity 0.3s;
+  }
+  .feedback.correct { color: #2b8a3e; }
+  .feedback.wrong { color: #e03131; }
+
+  /* Results */
+  .final-score {
+    font-size: 4rem;
+    font-weight: bold;
+    color: #4a00e0;
+    margin: 20px 0 10px;
+  }
+  .final-max { font-size: 1.2rem; color: #888; margin-bottom: 20px; }
+  .result-message {
+    font-size: 1.4rem;
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    font-weight: 600;
+  }
+  .play-again-btn, .review-btn {
+    padding: 16px 40px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    margin: 6px;
+  }
+  .play-again-btn:hover, .play-again-btn:focus-visible,
+  .review-btn:hover, .review-btn:focus-visible { background: #5a6fd6; outline: none; }
+  .back-btn {
+    display: inline-block;
+    margin-bottom: 16px;
+    padding: 8px 20px;
+    font-size: 0.95rem;
+    background: #e9ecef;
+    color: #555;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .back-btn:hover, .back-btn:focus-visible { background: #dee2e6; outline: none; }
+  .hint { color: #888; font-size: 0.95rem; margin-top: 8px; }
+
+  /* Review */
+  .review-list {
+    text-align: left;
+    max-height: 400px;
+    overflow-y: auto;
+    margin: 16px 0;
+  }
+  .review-item {
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-size: 1rem;
+  }
+  .review-item.right { background: #d3f9d8; }
+  .review-item.wrong { background: #ffe3e3; }
+  .review-item .q-text { font-weight: 600; }
+  .review-item .answers { color: #555; font-size: 0.9rem; margin-top: 4px; }
+  .review-item .answers .user-wrong { color: #e03131; font-weight: 600; }
+  .review-item .answers .user-right { color: #2b8a3e; font-weight: 600; }
+
+  /* Mobile */
+  @media (max-width: 480px) {
+    .container { padding: 24px 16px; }
+    .grade-grid { grid-template-columns: repeat(3, 1fr); }
+    .topic-grid { grid-template-columns: 1fr; }
+    .answer-row { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    #answer-input { width: 100%; max-width: 200px; }
+    .submit-btn { margin-left: 0; }
+    h1 { font-size: 1.7rem; }
+    .question-text { font-size: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Welcome Screen -->
+  <div id="welcome-screen" class="screen active">
+    <h1>Math Challenge!</h1>
+    <h2>Select Your Grade Level</h2>
+    <div class="grade-grid" id="grade-grid"></div>
+  </div>
+
+  <!-- Topic Screen -->
+  <div id="topic-screen" class="screen">
+    <button class="back-btn" onclick="showScreen('welcome-screen')" aria-label="Back to grade selection">&larr; Back</button>
+    <h1>Grade <span id="grade-label"></span></h1>
+    <h2>Pick a Topic</h2>
+    <div class="topic-grid">
+      <button class="topic-btn" onclick="startQuiz('addition')">Addition</button>
+      <button class="topic-btn" onclick="startQuiz('subtraction')">Subtraction</button>
+      <button class="topic-btn" onclick="startQuiz('multiplication')">Multiplication</button>
+      <button class="topic-btn" onclick="startQuiz('division')">Division</button>
+      <button class="topic-btn" onclick="startQuiz('fractions')">Fractions</button>
+      <button class="topic-btn" onclick="startQuiz('decimals')">Decimals</button>
+    </div>
+  </div>
+
+  <!-- Quiz Screen -->
+  <div id="quiz-screen" class="screen">
+    <div class="quiz-info">
+      <span id="q-counter">Question 1 of 35</span>
+      <span class="score">Score: <span id="score-display">0</span></span>
+    </div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-bar"></div></div>
+    <div class="question-text" id="question-text"></div>
+    <div class="answer-row">
+      <input type="text" id="answer-input" autocomplete="off" placeholder="?" aria-label="Your answer">
+      <button class="submit-btn" id="submit-btn" onclick="submitAnswer()">Go</button>
+    </div>
+    <div class="hint" id="answer-hint"></div>
+    <div class="feedback" id="feedback" aria-live="polite"></div>
+  </div>
+
+  <!-- Results Screen -->
+  <div id="results-screen" class="screen">
+    <h1>Quiz Complete!</h1>
+    <div class="final-score" id="final-score"></div>
+    <div class="final-max" id="final-max"></div>
+    <div class="result-message" id="result-message"></div>
+    <button class="review-btn" onclick="showScreen('review-screen')">Review Answers</button>
+    <button class="play-again-btn" onclick="showScreen('welcome-screen')">Play Again</button>
+  </div>
+
+  <!-- Review Screen -->
+  <div id="review-screen" class="screen">
+    <button class="back-btn" onclick="showScreen('results-screen')" aria-label="Back to results">&larr; Back to Results</button>
+    <h1>Answer Review</h1>
+    <div class="review-list" id="review-list"></div>
+    <button class="play-again-btn" onclick="showScreen('welcome-screen')">Play Again</button>
+  </div>
+</div>
+
+<script>
+const TOTAL_QUESTIONS = 35;
+const POINTS_PER_Q = 5;
+
+let grade = 1;
+let topic = '';
+let score = 0;
+let currentQ = 0;
+let correctAnswer = '';
+let waitingForNext = false;
+let history = []; // {text, userAns, correctAns, correct}
+
+// Build grade buttons
+(function() {
+  const grid = document.getElementById('grade-grid');
+  for (let g = 1; g <= 12; g++) {
+    const btn = document.createElement('button');
+    btn.className = 'grade-btn';
+    btn.textContent = g;
+    btn.setAttribute('aria-label', `Grade ${g}`);
+    btn.onclick = () => selectGrade(g);
+    grid.appendChild(btn);
+  }
+})();
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function selectGrade(g) {
+  grade = g;
+  document.getElementById('grade-label').textContent = g;
+  showScreen('topic-screen');
+}
+
+function startQuiz(t) {
+  topic = t;
+  score = 0;
+  currentQ = 0;
+  waitingForNext = false;
+  history = [];
+  showScreen('quiz-screen');
+  nextQuestion();
+  document.getElementById('answer-input').focus();
+}
+
+// --- Helpers ---
+function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { [a, b] = [b, a % b]; } return a; }
+function roundDec(n, places) { return Number(n.toFixed(places)); }
+
+// --- Question Generators ---
+function genAddition() {
+  let a, b;
+  if (grade <= 2) { a = rand(1, 10); b = rand(1, 10); }
+  else if (grade <= 4) { a = rand(5, 50); b = rand(5, 50); }
+  else if (grade <= 6) { a = rand(10, 200); b = rand(10, 200); }
+  else if (grade <= 9) { a = rand(50, 500); b = rand(50, 500); }
+  else { a = rand(100, 1000); b = rand(100, 1000); }
+  return { text: `${a} + ${b} = ?`, answer: String(a + b), hint: '' };
+}
+
+function genSubtraction() {
+  let a, b;
+  if (grade <= 2) { a = rand(1, 10); b = rand(1, 10); }
+  else if (grade <= 4) { a = rand(5, 50); b = rand(5, 50); }
+  else if (grade <= 6) { a = rand(10, 200); b = rand(10, 200); }
+  else if (grade <= 9) { a = rand(50, 500); b = rand(50, 500); }
+  else { a = rand(100, 1000); b = rand(100, 1000); }
+  if (grade <= 6 && a < b) [a, b] = [b, a]; // non-negative for lower grades
+  return { text: `${a} \u2212 ${b} = ?`, answer: String(a - b), hint: '' };
+}
+
+function genMultiplication() {
+  let a, b;
+  if (grade <= 2) { a = rand(1, 5); b = rand(1, 5); }
+  else if (grade <= 4) { a = rand(2, 10); b = rand(2, 10); }
+  else if (grade <= 6) { a = rand(2, 12); b = rand(2, 12); }
+  else if (grade <= 9) { a = rand(5, 20); b = rand(5, 20); }
+  else { a = rand(10, 30); b = rand(10, 30); }
+  return { text: `${a} \u00d7 ${b} = ?`, answer: String(a * b), hint: '' };
+}
+
+function genDivision() {
+  let divisor, quotient, dividend;
+  if (grade <= 2) { divisor = rand(1, 5); quotient = rand(1, 5); }
+  else if (grade <= 4) { divisor = rand(2, 10); quotient = rand(1, 10); }
+  else if (grade <= 6) { divisor = rand(2, 12); quotient = rand(2, 12); }
+  else if (grade <= 9) { divisor = rand(3, 15); quotient = rand(5, 20); }
+  else { divisor = rand(5, 25); quotient = rand(10, 30); }
+  dividend = divisor * quotient; // always divides evenly
+  return { text: `${dividend} \u00f7 ${divisor} = ?`, answer: String(quotient), hint: '' };
+}
+
+function genFractions() {
+  if (grade <= 3) {
+    // Same denominator, ensure result <= 1 for young students
+    const den = [2, 3, 4][rand(0, 2)];
+    let n1 = rand(1, den - 1);
+    let n2 = rand(1, den - n1); // ensure n1+n2 <= den
+    const rn = n1 + n2;
+    const g = gcd(rn, den);
+    const ansNum = rn / g;
+    const ansDen = den / g;
+    const ans = ansDen === 1 ? String(ansNum) : `${ansNum}/${ansDen}`;
+    return { text: `${n1}/${den} + ${n2}/${den} = ?`, answer: ans, hint: 'Simplify if possible (e.g. 3/4)' };
+  } else if (grade <= 6) {
+    const ops = ['+', '\u2212'];
+    const op = ops[rand(0, 1)];
+    let d1 = rand(2, 12), d2 = rand(2, 12);
+    let n1 = rand(1, d1 - 1), n2 = rand(1, d2 - 1);
+    const lcd = (d1 * d2) / gcd(d1, d2);
+    let rn = op === '+' ? n1 * (lcd / d1) + n2 * (lcd / d2) : n1 * (lcd / d1) - n2 * (lcd / d2);
+    if (op === '\u2212' && rn < 0) { [n1, n2, d1, d2] = [n2, n1, d2, d1]; rn = Math.abs(rn); }
+    const g = gcd(Math.abs(rn), lcd);
+    const ansNum = rn / g;
+    const ansDen = lcd / g;
+    const ans = ansDen === 1 ? String(ansNum) : `${ansNum}/${ansDen}`;
+    return { text: `${n1}/${d1} ${op} ${n2}/${d2} = ?`, answer: ans, hint: 'Simplify your answer (e.g. 1/2)' };
+  } else {
+    const ops = ['+', '\u2212'];
+    const op = ops[rand(0, 1)];
+    let d1 = rand(5, 20), d2 = rand(5, 20);
+    let n1 = rand(1, d1 - 1), n2 = rand(1, d2 - 1);
+    const lcd = (d1 * d2) / gcd(d1, d2);
+    let rn = op === '+' ? n1 * (lcd / d1) + n2 * (lcd / d2) : n1 * (lcd / d1) - n2 * (lcd / d2);
+    if (rn < 0) { [n1, n2, d1, d2] = [n2, n1, d2, d1]; rn = Math.abs(rn); }
+    const g = gcd(Math.abs(rn), lcd);
+    const ansNum = rn / g;
+    const ansDen = lcd / g;
+    const ans = ansDen === 1 ? String(ansNum) : `${ansNum}/${ansDen}`;
+    return { text: `${n1}/${d1} ${op} ${n2}/${d2} = ?`, answer: ans, hint: 'Simplify your answer (e.g. 7/12)' };
+  }
+}
+
+function genDecimals() {
+  if (grade <= 3) {
+    const a = roundDec(rand(1, 90) / 10, 1);
+    const b = roundDec(rand(1, 90) / 10, 1);
+    const ans = roundDec(a + b, 1);
+    return { text: `${a.toFixed(1)} + ${b.toFixed(1)} = ?`, answer: ans.toFixed(1), hint: '' };
+  } else if (grade <= 6) {
+    const ops = ['+', '\u2212'];
+    const op = ops[rand(0, 1)];
+    let a = roundDec(rand(1, 9900) / 100, 2);
+    let b = roundDec(rand(1, 9900) / 100, 2);
+    if (op === '\u2212' && a < b) [a, b] = [b, a];
+    const ans = op === '+' ? roundDec(a + b, 2) : roundDec(a - b, 2);
+    const sym = op === '+' ? '+' : '\u2212';
+    return { text: `${a.toFixed(2)} ${sym} ${b.toFixed(2)} = ?`, answer: ans.toFixed(2), hint: '' };
+  } else {
+    const type = rand(0, 2);
+    if (type === 0) {
+      const a = roundDec(rand(10, 999) / 10, 1);
+      const b = roundDec(rand(10, 99) / 10, 1);
+      const ans = roundDec(a * b, 2);
+      return { text: `${a.toFixed(1)} \u00d7 ${b.toFixed(1)} = ?`, answer: ans.toFixed(2), hint: '' };
+    } else {
+      const ops = ['+', '\u2212'];
+      const op = ops[rand(0, 1)];
+      let a = roundDec(rand(100, 50000) / 100, 2);
+      let b = roundDec(rand(100, 50000) / 100, 2);
+      if (op === '\u2212' && a < b) [a, b] = [b, a];
+      const ans = op === '+' ? roundDec(a + b, 2) : roundDec(a - b, 2);
+      const sym = op === '+' ? '+' : '\u2212';
+      return { text: `${a.toFixed(2)} ${sym} ${b.toFixed(2)} = ?`, answer: ans.toFixed(2), hint: '' };
+    }
+  }
+}
+
+const generators = {
+  addition: genAddition,
+  subtraction: genSubtraction,
+  multiplication: genMultiplication,
+  division: genDivision,
+  fractions: genFractions,
+  decimals: genDecimals,
+};
+
+function nextQuestion() {
+  if (currentQ >= TOTAL_QUESTIONS) { showResults(); return; }
+  const q = generators[topic]();
+  correctAnswer = q.answer;
+  document.getElementById('question-text').textContent = q.text;
+  document.getElementById('answer-hint').textContent = q.hint;
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('answer-input').value = '';
+  document.getElementById('answer-input').disabled = false;
+  document.getElementById('submit-btn').textContent = 'Go';
+  waitingForNext = false;
+  updateUI();
+  document.getElementById('answer-input').focus();
+}
+
+function updateUI() {
+  document.getElementById('q-counter').textContent = `Question ${currentQ + 1} of ${TOTAL_QUESTIONS}`;
+  document.getElementById('score-display').textContent = score;
+  document.getElementById('progress-bar').style.width = `${(currentQ / TOTAL_QUESTIONS) * 100}%`;
+}
+
+function normalizeAnswer(s) {
+  return s.trim().replace(/\s+/g, '');
+}
+
+function toNumber(s) {
+  const fractionMatch = s.match(/^(-?\d+)\/(\d+)$/);
+  if (fractionMatch) {
+    const num = parseInt(fractionMatch[1], 10);
+    const den = parseInt(fractionMatch[2], 10);
+    if (den === 0) return NaN;
+    return num / den;
+  }
+  return parseFloat(s);
+}
+
+function answersEquivalent(userAns, correct) {
+  if (userAns === correct) return true;
+  const userVal = toNumber(userAns);
+  const correctVal = toNumber(correct);
+  if (isNaN(userVal) || isNaN(correctVal)) return false;
+  return Math.abs(userVal - correctVal) < 1e-9;
+}
+
+function submitAnswer() {
+  if (waitingForNext) { nextQuestion(); return; }
+  const input = document.getElementById('answer-input');
+  const userAns = normalizeAnswer(input.value);
+  if (!userAns) return;
+
+  const fb = document.getElementById('feedback');
+  const correct = normalizeAnswer(correctAnswer);
+  const isCorrect = answersEquivalent(userAns, correct);
+
+  if (isCorrect) {
+    score += POINTS_PER_Q;
+    // Show simplified form if user gave an equivalent but different fraction answer
+    if (topic === 'fractions' && userAns !== correct) {
+      fb.textContent = `Correct! +5 points (Simplified: ${correctAnswer})`;
+    } else {
+      fb.textContent = 'Correct! +5 points';
+    }
+    fb.className = 'feedback correct';
+  } else {
+    fb.textContent = `Wrong! The answer was ${correctAnswer}.`;
+    fb.className = 'feedback wrong';
+  }
+
+  history.push({
+    text: document.getElementById('question-text').textContent,
+    userAns: userAns,
+    correctAns: correctAnswer,
+    correct: isCorrect,
+  });
+
+  currentQ++;
+  input.disabled = true;
+  document.getElementById('submit-btn').textContent = currentQ >= TOTAL_QUESTIONS ? 'See Results' : 'Next';
+  waitingForNext = true;
+  updateUI();
+  document.getElementById('progress-bar').style.width = `${(currentQ / TOTAL_QUESTIONS) * 100}%`;
+}
+
+function showResults() {
+  showScreen('results-screen');
+  const correctCount = history.filter(h => h.correct).length;
+  document.getElementById('final-score').textContent = `${correctCount} / ${TOTAL_QUESTIONS}`;
+  document.getElementById('final-max').textContent = `Score: ${score} points`;
+  const pct = correctCount / TOTAL_QUESTIONS;
+  const msg = document.getElementById('result-message');
+  if (pct >= 0.9) { msg.textContent = 'Outstanding! You crushed it!'; msg.style.background = '#d3f9d8'; msg.style.color = '#2b8a3e'; }
+  else if (pct >= 0.7) { msg.textContent = 'Great job! Keep practicing!'; msg.style.background = '#d0ebff'; msg.style.color = '#1864ab'; }
+  else if (pct >= 0.5) { msg.textContent = 'Good effort! Room to improve.'; msg.style.background = '#fff3bf'; msg.style.color = '#e67700'; }
+  else { msg.textContent = 'Keep practicing \u2014 you\'ll get there!'; msg.style.background = '#ffe3e3'; msg.style.color = '#c92a2a'; }
+
+  // Build review list
+  const list = document.getElementById('review-list');
+  list.innerHTML = '';
+  history.forEach((h, i) => {
+    const div = document.createElement('div');
+    div.className = `review-item ${h.correct ? 'right' : 'wrong'}`;
+    const cls = h.correct ? 'user-right' : 'user-wrong';
+    div.innerHTML = `<div class="q-text">${i + 1}. ${h.text}</div>` +
+      `<div class="answers">Your answer: <span class="${cls}">${h.userAns}</span>` +
+      (h.correct ? '' : ` &mdash; Correct: <strong>${h.correctAns}</strong>`) +
+      `</div>`;
+    list.appendChild(div);
+  });
+}
+
+// Keyboard: Enter to submit or advance
+document.getElementById('answer-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') submitAnswer();
+});
+</script>
+</body>
+</html>
