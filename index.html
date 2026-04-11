@@ -229,7 +229,7 @@ function updateLinks() {
     document.querySelectorAll('.game-card').forEach(card => {
         const base = card.getAttribute('data-href');
         if (base) {
-            const url = new URL(base);
+            const url = new URL(base, window.location.href);
             if (name) url.searchParams.set('player', name);
             card.href = url.toString();
         }
