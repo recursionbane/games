@@ -224,7 +224,15 @@ function saveUsername() {
 function updateWelcome() {
     const name = getUsername();
     if (name) {
-        welcomeBar.innerHTML = `Playing as <span>${name}</span><button onclick="showModal()">change</button>`;
+        welcomeBar.textContent = '';
+        welcomeBar.append('Playing as ');
+        const span = document.createElement('span');
+        span.textContent = name;
+        welcomeBar.append(span);
+        const btn = document.createElement('button');
+        btn.textContent = 'change';
+        btn.addEventListener('click', showModal);
+        welcomeBar.append(btn);
     }
 }
 
