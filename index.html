@@ -1,1 +1,118 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Games</title><style>*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:2rem;background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center}h1{font-size:2.5rem;margin:0 0 .5rem;letter-spacing:.1em;text-transform:uppercase}.welcome{font-size:1.1rem;color:#8b949e;margin-bottom:2rem}.welcome span{color:#58a6ff;font-weight:600}.welcome button{background:none;border:0;color:#8b949e;cursor:pointer;text-decoration:underline;margin-left:.5rem}.games{display:flex;flex-wrap:wrap;gap:1.5rem;justify-content:center}.card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:2rem;width:280px;text-align:center;text-decoration:none;color:inherit;transition:.2s}.card:hover{transform:translateY(-4px);border-color:#58a6ff}.card h2{font-size:1.4rem;margin:0 0 .5rem;color:#58a6ff}.card p{font-size:.9rem;color:#8b949e;margin:0}.card.fire{border-color:#8bdc42;box-shadow:0 0 22px rgba(202,255,53,.15)}.card.fire h2{color:#caff35}.overlay{position:fixed;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;z-index:100}.hidden{display:none}.modal{background:#161b22;border:1px solid #30363d;border-radius:16px;padding:2.5rem;text-align:center;max-width:400px;width:90%}.modal h2{color:#58a6ff}.modal p{color:#8b949e}.modal input{width:100%;padding:.8rem 1rem;font-size:1.1rem;border:2px solid #30363d;border-radius:8px;background:#0d1117;color:#e6edf3;text-align:center;margin-bottom:1rem}.modal button{padding:.7rem 2rem;font-size:1rem;font-weight:600;background:#238636;color:white;border:0;border-radius:8px;cursor:pointer}.error{color:#f85149;font-size:.85rem;min-height:1.2em;margin-top:.5rem}</style></head><body><div class="overlay hidden" id="username-overlay"><div class="modal"><h2>Welcome, Player!</h2><p>Choose a username. This will be your name across all games.</p><input id="username-input" placeholder="Enter username" maxlength="20" autocomplete="off"><br><button id="username-save">Let's Go</button><div class="error" id="username-error"></div></div></div><h1>Games</h1><div class="welcome" id="welcome-bar"></div><div class="games" id="games-list"><a class="card fire" data-href="fifarcade/"><h2>FIFARCADE</h2><p>World Cup soccer arcade — choose your country, pick a player, and cook the AI!</p></a><a class="card" data-href="https://recursionbane.github.io/V2/"><h2>TETRABOUNCE</h2><p>A bouncing tetra game — tap, bounce, and level up!</p></a><a class="card" data-href="https://recursionbane.github.io/BallPit/"><h2>BALLPIT</h2><p>A Ball X Pit clone — dive into the pit!</p></a><a class="card" data-href="https://recursionbane.github.io/PrankWars/"><h2>PRANKWARS.IO</h2><p>Chaos Addition — outprank your rivals!</p></a><a class="card" data-href="https://recursionbane.github.io/BooFu/"><h2>BOOFU</h2><p>Boomerang Fu! — slice, dice, and boomerang your way to victory!</p></a><a class="card" data-href="https://recursionbane.github.io/CandyRush/"><h2>CANDY RUSH</h2><p>Sweet candy-matching fun — rush to the highest score!</p></a><a class="card" data-href="math_game.html"><h2>MATH CHALLENGE</h2><p>Test your math skills — addition, division, fractions, and more!</p></a><a class="card" data-href="https://recursionbane.github.io/TIMEMACHINE/"><h2>TIMEMACHINE</h2><p>Journey through history — search any era and travel back in time!</p></a><a class="card" data-href="https://recursionbane.github.io/StealAnAnimal/"><h2>STEAL AN ANIMAL</h2><p>Bed Wars with farm animals — plant, raise, and steal from rival farms!</p></a><a class="card" data-href="https://recursionbane.github.io/cars-info/"><h2>CARS INFO</h2><p>Search any car — get a trading-card stat sheet with image and specs!</p></a><a class="card" data-href="https://aucul.us"><h2>AUCUL.US</h2><p>aucul.us</p></a></div><script>const KEY='games_username',overlay=document.getElementById('username-overlay'),input=document.getElementById('username-input'),save=document.getElementById('username-save'),err=document.getElementById('username-error'),welcome=document.getElementById('welcome-bar');function name(){return localStorage.getItem(KEY)}function modal(){overlay.classList.remove('hidden');input.value=name()||'';input.focus();err.textContent=''}function update(){const n=name();welcome.textContent='';if(n){welcome.append('Playing as ');const s=document.createElement('span');s.textContent=n;welcome.append(s);const b=document.createElement('button');b.textContent='change';b.onclick=modal;welcome.append(b)}document.querySelectorAll('.card').forEach(c=>{const u=new URL(c.dataset.href,location.href);if(n)u.searchParams.set('player',n);c.href=u})}function saveName(){const n=input.value.trim();if(!n){err.textContent='Username cannot be empty.';return}localStorage.setItem(KEY,n);overlay.classList.add('hidden');update()}save.onclick=saveName;input.onkeydown=e=>{if(e.key==='Enter')saveName()};if(!name())modal();else update();</script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Games</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 2rem;
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    h1 { font-size: 2.5rem; margin: 0 0 .5rem; letter-spacing: .1em; text-transform: uppercase; }
+    .welcome { font-size: 1.1rem; color: #8b949e; margin-bottom: 2rem; }
+    .welcome span { color: #58a6ff; font-weight: 600; }
+    .welcome button { background: none; border: 0; color: #8b949e; cursor: pointer; text-decoration: underline; margin-left: .5rem; }
+    .games { display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: center; }
+    .card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 2rem; width: 280px; text-align: center; text-decoration: none; color: inherit; transition: .2s; }
+    .card:hover { transform: translateY(-4px); border-color: #58a6ff; }
+    .card h2 { font-size: 1.4rem; margin: 0 0 .5rem; color: #58a6ff; }
+    .card p { font-size: .9rem; color: #8b949e; margin: 0; }
+    .card.fire { border-color: #8bdc42; box-shadow: 0 0 22px rgba(202, 255, 53, .15); }
+    .card.fire h2 { color: #caff35; }
+    .overlay { position: fixed; inset: 0; background: #000b; display: flex; align-items: center; justify-content: center; z-index: 100; }
+    .hidden { display: none; }
+    .modal { background: #161b22; border: 1px solid #30363d; border-radius: 16px; padding: 2.5rem; text-align: center; max-width: 400px; width: 90%; }
+    .modal h2 { color: #58a6ff; }
+    .modal p { color: #8b949e; }
+    .modal input { width: 100%; padding: .8rem 1rem; font-size: 1.1rem; border: 2px solid #30363d; border-radius: 8px; background: #0d1117; color: #e6edf3; text-align: center; margin-bottom: 1rem; }
+    .modal button { padding: .7rem 2rem; font-size: 1rem; font-weight: 600; background: #238636; color: white; border: 0; border-radius: 8px; cursor: pointer; }
+    .error { color: #f85149; font-size: .85rem; min-height: 1.2em; margin-top: .5rem; }
+  </style>
+</head>
+<body>
+  <div class="overlay hidden" id="username-overlay">
+    <div class="modal">
+      <h2>Welcome, Player!</h2>
+      <p>Choose a username. This will be your name across all games.</p>
+      <input id="username-input" placeholder="Enter username" maxlength="20" autocomplete="off">
+      <br>
+      <button id="username-save">Let's Go</button>
+      <div class="error" id="username-error"></div>
+    </div>
+  </div>
+  <h1>Games</h1>
+  <div class="welcome" id="welcome-bar"></div>
+  <div class="games" id="games-list">
+    <a class="card fire" data-href="fifarcade/"><h2>FIFARCADE</h2><p>World Cup soccer arcade — choose your country, pick a player, and cook the AI!</p></a>
+    <a class="card" data-href="https://recursionbane.github.io/V2/"><h2>TETRABOUNCE</h2><p>A bouncing tetra game — tap, bounce, and level up!</p></a>
+    <a class="card" data-href="https://recursionbane.github.io/BallPit/"><h2>BALLPIT</h2><p>A Ball X Pit clone — dive into the pit!</p></a>
+    <a class="card" data-href="https://recursionbane.github.io/PrankWars/"><h2>PRANKWARS.IO</h2><p>Chaos Addition — outprank your rivals!</p></a>
+    <a class="card" data-href="https://recursionbane.github.io/BooFu/"><h2>BOOFU</h2><p>Boomerang Fu! — slice, dice, and boomerang your way to victory!</p></a>
+    <a class="card" data-href="https://recursionbane.github.io/CandyRush/"><h2>CANDY RUSH</h2><p>Sweet candy-matching fun — rush to the highest score!</p></a>
+    <a class="card" data-href="math_game.html"><h2>MATH CHALLENGE</h2><p>Test your math skills — addition, division, fractions, and more!</p></a>
+    <a class="card" data-href="https://recursionbane.github.io/TIMEMACHINE/"><h2>TIMEMACHINE</h2><p>Journey through history — search any era and travel back in time!</p></a>
+    <a class="card" data-href="https://recursionbane.github.io/StealAnAnimal/"><h2>STEAL AN ANIMAL</h2><p>Bed Wars with farm animals — plant, raise, and steal from rival farms!</p></a>
+    <a class="card" data-href="https://recursionbane.github.io/cars-info/"><h2>CARS INFO</h2><p>Search any car — get a trading-card stat sheet with image and specs!</p></a>
+    <a class="card" data-href="https://recursionbane.github.io/triplezone/"><h2>TRIPLEZONE</h2><p>Match crystal triples and race through a five-column fantasy puzzle wall!</p></a>
+  </div>
+  <script>
+    const KEY = 'games_username';
+    const overlay = document.getElementById('username-overlay');
+    const input = document.getElementById('username-input');
+    const save = document.getElementById('username-save');
+    const err = document.getElementById('username-error');
+    const welcome = document.getElementById('welcome-bar');
+
+    function name() { return localStorage.getItem(KEY); }
+    function modal() {
+      overlay.classList.remove('hidden');
+      input.value = name() || '';
+      input.focus();
+      err.textContent = '';
+    }
+    function update() {
+      const n = name();
+      welcome.textContent = '';
+      if (n) {
+        welcome.append('Playing as ');
+        const span = document.createElement('span');
+        span.textContent = n;
+        welcome.append(span);
+        const button = document.createElement('button');
+        button.textContent = 'change';
+        button.onclick = modal;
+        welcome.append(button);
+      }
+      document.querySelectorAll('.card').forEach((card) => {
+        const url = new URL(card.dataset.href, location.href);
+        if (n) url.searchParams.set('player', n);
+        card.href = url;
+      });
+    }
+    function saveName() {
+      const n = input.value.trim();
+      if (!n) {
+        err.textContent = 'Username cannot be empty.';
+        return;
+      }
+      localStorage.setItem(KEY, n);
+      overlay.classList.add('hidden');
+      update();
+    }
+
+    save.onclick = saveName;
+    input.onkeydown = (event) => { if (event.key === 'Enter') saveName(); };
+    if (!name()) modal(); else update();
+  </script>
+</body>
+</html>
